@@ -1,0 +1,112 @@
+//
+// Created by liujie on 2020/3/17.
+// encoding utf-8
+//
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "REPL.h"
+
+/**
+ * @param line {char**} 指向一个动态分配的char类型的指针，可以为空
+ * @param size_t {size_t} 指向的内存空间的长度，字节单位
+ * @param FILE {FILE} 标准输入 stdin
+ * @return {size_t} 读取的字符串长度，不包括'\0'结束符
+ * 动态分配内存空间，读取字符直到遇到EOF
+ * */
+size_t get_line(char** line,size_t *n,FILE *fp)
+{
+    char *buf = *line;
+    size_t c,i=0;//i来记录字符串长度，c来存储字符
+    if(buf==NULL||*n==0)//如果指向的内存为空指针或读取的字节长度为0，则分配10字节的内存空间
+    {
+        *line = malloc(10);
+        buf = *line;
+        *n = 10;
+    }
+    //buf为或n为0时动态为期分配空间
+    while((c=fgetc(fp))!='\n')
+    {
+        if(c==EOF)
+            return -1;
+        if(i<*n-2)//留2个空间给\n和\0
+        {
+            *(buf+i++)=c;
+        }
+        else
+        {
+            *n = *n+10;
+            buf = realloc(buf,*n);//空间不足时，重新进行分配
+            *(buf+i++)=c;
+        }
+    }
+    *(buf+i++)='\n';
+    *(buf+i)='\0';
+    return i;
+}
+
+/**
+ * @param {void}
+ * @return in_buffer {InputBuffer*}
+ * 初始化一个InputBuffer
+ * */
+InputBuffer* new_in_buffer(){
+    InputBuffer *in_buffer=malloc(sizeof(InputBuffer));
+    in_buffer->buffer=NULL;
+    in_buffer->buffer_length=0;
+    in_buffer->input_length=0;
+    return in_buffer;
+};
+
+/**
+ * @param in_buffer {InputBuffer} 获取到的一行字符串
+ * @return void
+ * 获取一行指令
+ * */
+void read_input(InputBuffer* in_buffer){
+    size_t size=get_line(&(in_buffer->buffer), &(in_buffer->buffer_length),stdin );
+    if (in_buffer->buffer_length < 0) {
+        printf("Error reading input\n");
+        exit(EXIT_FAILURE);
+    }
+    // Ignore trailing newline
+    in_buffer->input_length = size - 1;
+    in_buffer->buffer[size - 1] = 0;
+};
+
+/**
+ * @param in_buffer {InputBuffer} 获取到的一行字符串
+ * @return void
+ * 释放InputBuffer的内存
+ * */
+void close_input_buffer(InputBuffer* in_buffer){
+    free(in_buffer->buffer);
+    free(in_buffer);
+};
+
+/**
+ * @return void
+ * 输出固定的开头
+ * */
+void format_prompt_out(){
+    printf("my_db:> ");
+};
+
+/**
+ * @param in_buffer {InputBuffer} 获取到的一行字符串
+ * @return void
+ * 处理不同的命令行指令
+ * */
+void dispatch_command(InputBuffer* in_buffer){
+    if(strcmp(in_buffer->buffer,".exit")==0){
+        printf("Exiting......\n");
+        close_input_buffer(in_buffer);
+        printf("Exit Success\n");
+        exit(EXIT_SUCCESS);
+    }else if(strcmp(in_buffer->buffer,".start")==0){
+        printf("start now\n");
+    }else{
+        printf("Unrecognized command '%s'\n",in_buffer->buffer);
+    }
+};
+
