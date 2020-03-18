@@ -19,6 +19,7 @@ int main() {
         read_input(in_buffer);
         dispatch_command(in_buffer);
     }
+    close_input_buffer(in_buffer);
     return 0;
 }
 

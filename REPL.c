@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "REPL.h"
+#include "command_processor.h"
+#include "virtual_machine.h"
 
 /**
  * @param line {char**} 指向一个动态分配的char类型的指针，可以为空
@@ -98,15 +100,25 @@ void format_prompt_out(){
  * 处理不同的命令行指令
  * */
 void dispatch_command(InputBuffer* in_buffer){
-    if(strcmp(in_buffer->buffer,".exit")==0){
-        printf("Exiting......\n");
-        close_input_buffer(in_buffer);
-        printf("Exit Success\n");
-        exit(EXIT_SUCCESS);
-    }else if(strcmp(in_buffer->buffer,".start")==0){
-        printf("start now\n");
+    if (in_buffer->buffer[0] == '.') {
+        printf("%s",in_buffer->buffer);
+        switch (handle_meta_command(in_buffer)) {
+            case (META_COMMAND_SUCCESS):
+                break;
+            case (UNRECOGNIZED_META_COMMAND):
+                printf("Unrecognized command '%s'\n", in_buffer->buffer);
+                break;
+        }
     }else{
-        printf("Unrecognized command '%s'\n",in_buffer->buffer);
+        Statement statement;
+        switch (prepare_statement(in_buffer, &statement)) {
+            case (PREPARE_SUCCESS):
+                execute_command(&statement);
+                break;
+            case (UNRECOGNIZED_PREPARE_STATEMENT):
+                printf("Unrecognized keyword at start of '%s'.\n",in_buffer->buffer);
+                break;
+        }
     }
 };
 

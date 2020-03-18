@@ -1,6 +1,7 @@
 //
 // Created by liujie on 2020/3/17.
 // encoding utf-8
+// 关于命令行的一些结构和函数
 //
 #include <stddef.h>
 #ifndef MY_DB_REPL_H
