@@ -69,15 +69,12 @@ InputBuffer* new_in_buffer(){
 void read_input(InputBuffer* in_buffer){
     //size_t size=get_line(&(in_buffer->buffer), &(in_buffer->buffer_length),stdin );
     fgets(in_buffer->buffer,120,stdin);
-    //printf("buffer is %s\n",in_buffer->buffer);
-    //printf("buffer is %c\n",in_buffer->buffer[in_buffer->input_length]);
+
+    in_buffer->buffer[strlen(in_buffer->buffer)-1] = '\0';
     if (in_buffer->buffer_length < 0) {
         printf("Error reading input\n");
         exit(EXIT_FAILURE);
     }
-    // Ignore trailing newline
-    //in_buffer->input_length = size - 1;
-    //in_buffer->buffer[size - 1] = 0;
 };
 
 /**
