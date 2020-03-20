@@ -42,7 +42,6 @@ extern Table* table;
  * 将处理完成的insert 命令交给虚拟机执行，返回虚拟机执行的结果
  * */
 ExecuteResult handle_insert(Statement* statement){
-    //printf("table row count is %d\n",table->num_rows);
     return insert_row(table,&(statement->row_to_insert));
 }
 

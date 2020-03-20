@@ -16,6 +16,7 @@
  * @return {size_t} 读取的字符串长度，包括'\0'结束符
  * 动态分配内存空间，读取字符直到遇到EOF
  * */
+
 size_t get_line(char** line,size_t *n,FILE *fp)
 {
     char *buf = *line;
@@ -31,7 +32,7 @@ size_t get_line(char** line,size_t *n,FILE *fp)
     {
         if(c==EOF)
             return -1;
-        if(i<*n-2)//留2个空间给\n和\0
+        if(i<*n-1)//留2个空间给\n和\0
         {
             *(buf+i++)=c;
         }
@@ -42,9 +43,9 @@ size_t get_line(char** line,size_t *n,FILE *fp)
             *(buf+i++)=c;
         }
     }
-    *(buf+i++)='\n';
+    //*(buf+i++)='\n';
     *(buf+i)='\0';
-    return i+2;
+    return i;
 }
 
 /**
@@ -54,7 +55,7 @@ size_t get_line(char** line,size_t *n,FILE *fp)
  * */
 InputBuffer* new_in_buffer(){
     InputBuffer *in_buffer=malloc(sizeof(InputBuffer));
-    in_buffer->buffer=NULL;
+    in_buffer->buffer="";
     in_buffer->buffer_length=0;
     in_buffer->input_length=0;
     return in_buffer;
@@ -66,14 +67,17 @@ InputBuffer* new_in_buffer(){
  * 获取一行指令
  * */
 void read_input(InputBuffer* in_buffer){
-    size_t size=get_line(&(in_buffer->buffer), &(in_buffer->buffer_length),stdin );
+    //size_t size=get_line(&(in_buffer->buffer), &(in_buffer->buffer_length),stdin );
+    fgets(in_buffer->buffer,120,stdin);
+    //printf("buffer is %s\n",in_buffer->buffer);
+    //printf("buffer is %c\n",in_buffer->buffer[in_buffer->input_length]);
     if (in_buffer->buffer_length < 0) {
         printf("Error reading input\n");
         exit(EXIT_FAILURE);
     }
     // Ignore trailing newline
-    in_buffer->input_length = size - 1;
-    in_buffer->buffer[size - 1] = 0;
+    //in_buffer->input_length = size - 1;
+    //in_buffer->buffer[size - 1] = 0;
 };
 
 /**
@@ -102,7 +106,6 @@ void format_prompt_out(){
  * */
 void dispatch_command(InputBuffer* in_buffer){
     if (in_buffer->buffer[0] == '.') {
-        printf("%s",in_buffer->buffer);
         switch (handle_meta_command(in_buffer)) {
             case (META_COMMAND_SUCCESS):
                 break;
