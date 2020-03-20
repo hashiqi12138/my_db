@@ -23,6 +23,8 @@ typedef enum{
  * */
 typedef enum{
     PREPARE_SUCCESS,                //可处理的指令 select insert delete 等
+    PREPARE_NEGATIVE_ID,            //ID为负值
+    PREPARE_STRING_TOO_LONG,        //String 过长，大于字段的长度
     UNRECOGNIZED_PREPARE_STATEMENT,  //未识别的指令
     PREPARE_SYNTAX_ERROR            //错误的指令
 }PREPARE_RESULT;

@@ -129,6 +129,12 @@ void dispatch_command(InputBuffer* in_buffer){
             case PREPARE_SYNTAX_ERROR:
                 printf("Syntax error. Could not parse statement \n");
                 break;
+            case PREPARE_NEGATIVE_ID:
+                printf("ID must be POSITIVE !\n");
+                break;
+            case PREPARE_STRING_TOO_LONG:
+                printf("String is out of field length !\n");
+                break;
         }
     }
 };
