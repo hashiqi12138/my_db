@@ -13,7 +13,7 @@
  * @param line {char**} 指向一个动态分配的char类型的指针，可以为空
  * @param size_t {size_t} 指向的内存空间的长度，字节单位
  * @param FILE {FILE} 标准输入 stdin
- * @return {size_t} 读取的字符串长度，不包括'\0'结束符
+ * @return {size_t} 读取的字符串长度，包括'\0'结束符
  * 动态分配内存空间，读取字符直到遇到EOF
  * */
 size_t get_line(char** line,size_t *n,FILE *fp)
@@ -44,7 +44,7 @@ size_t get_line(char** line,size_t *n,FILE *fp)
     }
     *(buf+i++)='\n';
     *(buf+i)='\0';
-    return i;
+    return i+2;
 }
 
 /**
@@ -82,7 +82,8 @@ void read_input(InputBuffer* in_buffer){
  * 释放InputBuffer的内存
  * */
 void close_input_buffer(InputBuffer* in_buffer){
-    free(in_buffer->buffer);
+    in_buffer->buffer=NULL;
+    //free(in_buffer->buffer);
     free(in_buffer);
 };
 
@@ -113,10 +114,20 @@ void dispatch_command(InputBuffer* in_buffer){
         Statement statement;
         switch (prepare_statement(in_buffer, &statement)) {
             case (PREPARE_SUCCESS):
-                execute_command(&statement);
+                switch (execute_command(&statement)){
+                    case EXECUTE_SUCCESS:
+                        printf("Execute Success !\n");
+                        break;
+                    case EXECUTE_TABLE_FULL:
+                        printf("Table is full, row not inserted !\n");
+                        break;
+                }
                 break;
             case (UNRECOGNIZED_PREPARE_STATEMENT):
                 printf("Unrecognized keyword at start of '%s'.\n",in_buffer->buffer);
+                break;
+            case PREPARE_SYNTAX_ERROR:
+                printf("Syntax error. Could not parse statement \n");
                 break;
         }
     }

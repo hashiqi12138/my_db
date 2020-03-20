@@ -6,8 +6,10 @@
 #ifndef MY_DB_COMMAND_PROCESSOR_H
 #define MY_DB_COMMAND_PROCESSOR_H
 
+#include <stdint.h>
+#include <stdio.h>
 #include "REPL.h"
-
+#include "data_store.h"
 /**
  * 枚举类型 元指令的处理结果（元指令为 .exit 等）
  * */
@@ -21,7 +23,8 @@ typedef enum{
  * */
 typedef enum{
     PREPARE_SUCCESS,                //可处理的指令 select insert delete 等
-    UNRECOGNIZED_PREPARE_STATEMENT  //未识别的指令
+    UNRECOGNIZED_PREPARE_STATEMENT,  //未识别的指令
+    PREPARE_SYNTAX_ERROR            //错误的指令
 }PREPARE_RESULT;
 
 /**
@@ -29,15 +32,19 @@ typedef enum{
  * */
 typedef enum{
     STATEMENT_INSERT,  //insert 插入指令
-    STATEMENT_SELECT   //select 选择指令
+    STATEMENT_SELECT,  //select 选择指令
+    STATEMENT_CREATE   //create 创建表
 } STATEMENT_TYPE;
+
 
 /**
  * 指令的类型 select insert delete 等
  * */
 typedef struct {
     STATEMENT_TYPE type;    //指令类型
+    ROW row_to_insert;
 } Statement;
+
 
 /**
  * @param in_buffer {InputBuffer} 命令行输入的一行指令
