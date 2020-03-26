@@ -12,6 +12,7 @@ const uint32_t USERNAME_SIZE = size_of_attribute(ROW, username);                
 const uint32_t EMAIL_SIZE = size_of_attribute(ROW, email);                      //email的大小
 const uint32_t ID_OFFSET = 0;                                                   //id在序列化时的相对首地址的偏移字节数
 
+//TODO 这里使用const 变量获取两个const变量的值，编译会出错
 #define USERNAME_OFFSET ID_OFFSET + ID_SIZE           //直接引用或运算不会发生错误   username在序列化时的相对首地址的偏移字节数
 #define EMAIL_OFFSET USERNAME_OFFSET + USERNAME_SIZE  //直接引用或运算不会发生错误   email在序列化时的相对首地址的偏移字节数
 #define ROW_SIZE ID_SIZE + USERNAME_SIZE + EMAIL_SIZE //直接引用不会发生错误 运算后值怪异
