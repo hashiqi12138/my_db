@@ -24,8 +24,10 @@ ExecuteResult execute_command(Statement* statement){
             return handle_select(statement);
         case STATEMENT_CREATE:
             printf("This is where we would do a create.\n");
-            //Schema* s1=create_schema("{name ,1};{name ,1};{name ,1};{name ,1};{name ,1};{name ,1};{name ,1}");
+            //Schema* s1=create_schema("{name ,1};{name ,1};{name ,1};{name ,1}");
+            //print_schema(s1);
             //close_schema(s1);
+            close_schema(statement->schema);
             break;
     }
 };

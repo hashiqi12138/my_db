@@ -5,7 +5,7 @@
 #ifndef MY_DB_SCHEMA_CREATOR_H
 #define MY_DB_SCHEMA_CREATOR_H
 
-#define MAX_FIELDS_COUNT 5
+#define MAX_FIELDS_COUNT 10
 
 typedef enum{
     INT,
@@ -19,10 +19,15 @@ typedef struct _field{
 
 typedef struct _schema{
     int field_count;
-    Field **fields;
+    Field *fields;
+    char *name;
 }Schema;
 
-Schema* _create_schema(Field** pField);
+typedef enum{
+    APPEND_SUCCESS,
+    APPEND_FULL_ERROR,
+}AppendResult;
+
 
 Schema* create_schema(char[]);
 
@@ -32,12 +37,12 @@ Field* new_field();
 
 void close_field(Field* field);
 
-Field** _new_fields(char *json_fields);
-
 Schema* new_schema();
 
-int append_field(Schema*,Field*);
+AppendResult append_field(Schema*,Field*);
 
 void close_schema(Schema* schema);
+
+void print_schema(Schema* schema);
 
 #endif //MY_DB_SCHEMA_CREATOR_H

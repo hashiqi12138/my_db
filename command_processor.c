@@ -64,6 +64,21 @@ PREPARE_RESULT prepare_statement(InputBuffer* in_buffer,Statement* statement){
     }
     if (strncmp(in_buffer->buffer, "create",6) == 0) {
         statement->type = STATEMENT_CREATE;
+        char* keyword = strtok(in_buffer->buffer, " ");
+        char* schema_name = strtok(NULL, " ");
+        char* fields = strtok(NULL, " ");
+        if (schema_name == NULL || fields == NULL ) {
+            return PREPARE_SYNTAX_ERROR;
+        }
+        if (strlen(schema_name) > 50) {
+            return PREPARE_STRING_TOO_LONG;
+        }
+        if (strlen(fields) > 255) {
+            return PREPARE_STRING_TOO_LONG;
+        }
+        Schema* schema=create_schema(fields);
+        schema->name=schema_name;
+        statement->schema=schema;
         return PREPARE_SUCCESS;
     }
     return UNRECOGNIZED_PREPARE_STATEMENT;

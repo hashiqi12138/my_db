@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include "REPL.h"
 #include "data_store.h"
+#include "schema_creator.h"
+
 /**
  * 枚举类型 元指令的处理结果（元指令为 .exit 等）
  * */
@@ -45,6 +47,7 @@ typedef enum{
 typedef struct {
     STATEMENT_TYPE type;    //指令类型
     ROW row_to_insert;
+    Schema* schema;
 } Statement;
 
 
