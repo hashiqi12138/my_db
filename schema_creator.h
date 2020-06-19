@@ -19,7 +19,7 @@ typedef struct _field{
 
 typedef struct _schema{
     int field_count;
-    Field *fields;
+    Field* fields;
     char *name;
 }Schema;
 
@@ -34,6 +34,10 @@ Schema* create_schema(char[]);
 Field* _new_field(char *json_field);
 
 Field* new_field();
+
+void free_field(Field* field);
+
+Field* create_field(char* json_str);
 
 void close_field(Field* field);
 

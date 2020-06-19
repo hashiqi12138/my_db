@@ -6,6 +6,7 @@
 #include "REPL.h"
 #include "schema_creator.h"
 #include "data_store.h"
+#include "json.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -14,8 +15,11 @@ Table* table;
 int format_output(char *);
 
 int main() {
+    KV* kv = new_kv();
+    ValidateResult ret = parse("{table:INT}",kv);
+    free_kv(kv);
+
     table=new_table();
-    Schema* new_schema_local(char* local);
     InputBuffer *in_buffer = new_in_buffer();
     int flag=TRUE;
     int count=1000;

@@ -6,6 +6,23 @@
 #include <string.h>
 #include "schema_creator.h"
 
+Field* new_field(){
+    Field* field=malloc(sizeof(Field));
+    field->name=malloc(sizeof(char));
+    field->type=INT;
+    return field;
+}
+
+void close_field(Field* field){
+    free(field->name);
+    free(field);
+}
+
+Field* create_field(char* json_str){
+
+};
+
+
 void close_schema(Schema* schema){
     for(int i =0;i<schema->field_count;i++){
         free(schema->fields[i].name);
@@ -24,18 +41,6 @@ Schema* new_schema(){
     return schema;
 }
 
-Field* new_field(){
-    //printf("new field\n");
-    Field* field=malloc(sizeof(Field));
-    field->name=malloc(sizeof(char)*20);
-    field->type=INT;
-    return field;
-}
-
-void close_field(Field* field){
-    free(field->name);
-    free(field);
-}
 
 AppendResult append_field(Schema* schema,Field* field){
     const int n=5;

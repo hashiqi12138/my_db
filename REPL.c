@@ -40,11 +40,13 @@ size_t get_line(char** line,size_t *n,FILE *fp)
         {
             *n = *n+10;
             buf = realloc(buf,*n);//空间不足时，重新进行分配
+            *line=buf;//使line指向新分配的地址
             *(buf+i++)=c;
         }
     }
     //*(buf+i++)='\n';
     *(buf+i)='\0';
+    //*(buf+i++)='\n';
     return i;
 }
 
@@ -55,7 +57,7 @@ size_t get_line(char** line,size_t *n,FILE *fp)
  * */
 InputBuffer* new_in_buffer(){
     InputBuffer *in_buffer=malloc(sizeof(InputBuffer));
-    in_buffer->buffer="";
+    in_buffer->buffer=NULL;
     in_buffer->buffer_length=0;
     in_buffer->input_length=0;
     return in_buffer;
@@ -67,10 +69,7 @@ InputBuffer* new_in_buffer(){
  * 获取一行指令
  * */
 void read_input(InputBuffer* in_buffer){
-    //size_t size=get_line(&(in_buffer->buffer), &(in_buffer->buffer_length),stdin );
-    fgets(in_buffer->buffer,120,stdin);
-
-    in_buffer->buffer[strlen(in_buffer->buffer)-1] = '\0';
+    size_t size=get_line(&(in_buffer->buffer), &(in_buffer->buffer_length),stdin );
     if (in_buffer->buffer_length < 0) {
         printf("Error reading input\n");
         exit(EXIT_FAILURE);
