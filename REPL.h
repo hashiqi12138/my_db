@@ -6,6 +6,7 @@
 #include <stddef.h>
 #ifndef MY_DB_REPL_H
 #define MY_DB_REPL_H
+#include "data_store.h"
     /**
      * 输入缓冲结构体，保存从命令行读取的一串字符串
      * */

@@ -4,22 +4,21 @@
 #include <errno.h>
 #include <string.h>
 #include "REPL.h"
-#include "schema_creator.h"
-#include "data_store.h"
-#include "json.h"
 
 #define TRUE 1
 #define FALSE 0
 
 Table* table;
+
 int format_output(char *);
 
-int main() {
-    KV* kv = new_kv();
-    ValidateResult ret = parse("{table:INT}",kv);
-    free_kv(kv);
+int main(int argc, char* argv[]) {
 
-    table=new_table();
+    if (argc < 2) {
+        printf("Must supply a database filename. \n");
+        exit(EXIT_FAILURE);
+    }
+    table = db_open(argv[1]);
     InputBuffer *in_buffer = new_in_buffer();
     int flag=TRUE;
     int count=1000;

@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include "REPL.h"
 #include "data_store.h"
-#include "schema_creator.h"
 
 /**
  * 枚举类型 元指令的处理结果（元指令为 .exit 等）
@@ -47,7 +46,6 @@ typedef enum{
 typedef struct {
     STATEMENT_TYPE type;    //指令类型
     ROW row_to_insert;
-    Schema* schema;
 } Statement;
 
 
@@ -56,7 +54,7 @@ typedef struct {
  * @return {META_COMMAND_RESULT} 返回处理的结果，成功或未识别
  * 元指令预处理，输入未经处理得指令，返回该元指令是否是正确的指令
  * */
-META_COMMAND_RESULT handle_meta_command(InputBuffer* in_buffer);
+META_COMMAND_RESULT handle_meta_command(InputBuffer* in_buffer, Table* table);
 
 /**
  * @param in_buffer {InputBuffer} 命令行输入的一行指令
@@ -67,5 +65,13 @@ META_COMMAND_RESULT handle_meta_command(InputBuffer* in_buffer);
  * 否则返回unrecognized
  * */
 PREPARE_RESULT prepare_statement(InputBuffer* in_buffer,Statement* statement);
+
+/**
+ * 处理插入语句， 识别字符串长度和合法性
+ * @param input_buffer
+ * @param statement
+ * @return
+ */
+PREPARE_RESULT prepare_insert(InputBuffer *input_buffer, Statement *statement);
 
 #endif //MY_DB_COMMAND_PROCESSOR_H

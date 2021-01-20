@@ -16,6 +16,22 @@
  * @return {void}
  * 处理对应的数据指令
  * */
-ExecuteResult execute_command(Statement*);
+ExecuteResult execute_command(Statement*, Table*);
+
+/**
+ *
+ * @param statement
+ * @param table
+ * @return
+ */
+ExecuteResult handle_insert(Statement* statement, Table* table);
+
+/**
+ *
+ * @param statement
+ * @param table
+ * @return
+ */
+ExecuteResult handle_select(Statement* statement, Table* table);
 
 #endif //MY_DB_VIRTUAL_MACHINE_H
