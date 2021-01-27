@@ -110,7 +110,7 @@ void dispatch_command(InputBuffer *in_buffer) {
     } else {
         Statement statement;
         switch (prepare_statement(in_buffer, &statement)) {
-            case (PREPARE_SUCCESS):
+            case PREPARE_SUCCESS:
                 switch (execute_command(&statement, table)) {
                     case EXECUTE_SUCCESS:
                         printf("Execute Success !\n");
@@ -120,14 +120,16 @@ void dispatch_command(InputBuffer *in_buffer) {
                         break;
                 }
                 break;
-            case (PREPARE_STRING_TOO_LONG):
+            case PREPARE_STRING_TOO_LONG:
                 printf("String is out of field length !\n");
+                break;
             case PREPARE_NEGATIVE_ID:
                 printf("ID must be POSITIVE !\n");
+                break;
             case PREPARE_SYNTAX_ERROR:
                 printf("Syntax error. Could not parse statement \n");
                 break;
-            case (UNRECOGNIZED_PREPARE_STATEMENT):
+            case UNRECOGNIZED_PREPARE_STATEMENT:
                 printf("Unrecognized keyword at start of '%s'.\n", in_buffer->buffer);
                 break;
         }
