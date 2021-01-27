@@ -82,6 +82,7 @@ void deserialize_row(void* source, ROW* destination);
  * */
 void* row_slot(Table* table, uint32_t row_num);
 
+
 /**
  * 打开文件，创建table
  * @param table

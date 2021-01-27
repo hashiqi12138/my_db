@@ -8,6 +8,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include "data_store.h"
+#include "cursor.h"
+
 
 #define size_of_attribute(Struct, Attribute) sizeof(((Struct*)0)->Attribute)    //输出结构体中属性占用的内存大小
 const uint32_t ID_SIZE = size_of_attribute(ROW, id);                            //id的大小
@@ -20,25 +22,6 @@ const uint32_t ROW_SIZE = ID_SIZE + USERNAME_SIZE + EMAIL_SIZE;
 const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
 const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
 
-
-//#define ROWS_PER_PAGE PAGE_SIZE / ROW_SIZE          //直接引用不会发生错误 运算后值怪异
-//#define TABLE_MAX_ROWS ROWS_PER_PAGE * TABLE_MAX_PAGES  //直接引用不会发生错误 运算后值怪异
-
-////替代方案 ROWS_PER_PAGE
-//uint32_t ROWS_PER_PAGE() {
-//    uint32_t page_size = PAGE_SIZE;
-//    uint32_t row_size = ROW_SIZE;
-//    uint32_t result = page_size / row_size;
-//    return result;
-//}
-//
-////替代方案 TABLE_MAX_ROWS
-//uint32_t TABLE_MAX_ROWS() {
-//    uint32_t rows_per_page = ROWS_PER_PAGE();
-//    uint32_t table_max_pages = TABLE_MAX_PAGES;
-//    uint32_t result = rows_per_page * table_max_pages;
-//    return result;
-//}
 
 void print_size() {
     printf("ID size is  %d\n", ID_SIZE);
@@ -98,6 +81,16 @@ void *row_slot(Table *table, uint32_t row_num) {
     return (char *) page + byte_offset;
 }
 
+void *cursor_value(Cursor *cursor) {
+    uint32_t row_num = cursor->row_num;
+    uint32_t page_num = row_num / ROWS_PER_PAGE;
+    void *page = get_page(cursor->table->pager, page_num);
+    uint32_t row_offset = row_num % ROWS_PER_PAGE;
+    uint32_t row_size = ROW_SIZE;
+    uint32_t byte_offset = row_offset * row_size;
+    return page + byte_offset;
+}
+
 Table *db_open(const char *filename) {
     Pager *pager = pager_open(filename);
     uint32_t num_rows = pager->file_length / ROW_SIZE;
@@ -139,7 +132,7 @@ void db_close(Table *table) {
         exit(EXIT_FAILURE);
     }
     for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
-        void* page = pager->pages[i];
+        void *page = pager->pages[i];
         if (page) {
             free(page);
             pager->pages[i] = NULL;
@@ -172,8 +165,10 @@ ExecuteResult insert_row(Table *table, ROW *row) {
     if (table->num_rows >= TABLE_MAX_ROWS) {
         return EXECUTE_TABLE_FULL;
     }
-    serialize_row(row, row_slot(table, table->num_rows));
+    Cursor *cursor = table_end(table);
+    serialize_row(row, cursor_value(cursor));
     table->num_rows += 1;
+    free(cursor);
     return EXECUTE_SUCCESS;
 };
 
@@ -187,10 +182,13 @@ ExecuteResult insert_row(Table *table, ROW *row) {
  * */
 ExecuteResult select_row(Table *table) {
     ROW row;
-    for (uint32_t i = 0; i < table->num_rows; i++) {
-        deserialize_row(row_slot(table, i), &row);
+    Cursor* cursor = table_start(table);
+    while (!cursor->end_of_table) {
+        deserialize_row(cursor_value(cursor), &row);
         print_row(&row);
+        cursor_advance(cursor);
     }
+    free(cursor);
     return EXECUTE_SUCCESS;
 };
 
@@ -202,14 +200,14 @@ void print_row(ROW *row) {
     printf("(%d, %s, %s)\n", row->id, row->username, row->email);
 }
 
-Pager* pager_open (const char* filename) {
+Pager *pager_open(const char *filename) {
     int file_handle = open(filename, O_RDWR | O_CREAT, S_IWUSR | S_IRUSR);
     if (file_handle == -1) {
         printf("Unable to open file: %s\n", filename);
         exit(EXIT_FAILURE);
     }
     off_t file_length = lseek(file_handle, 0, SEEK_END);
-    Pager *pager = malloc(sizeof (Pager));
+    Pager *pager = malloc(sizeof(Pager));
     pager->file_descriptor = file_handle;
     pager->file_length = file_length;
 
@@ -219,13 +217,13 @@ Pager* pager_open (const char* filename) {
     return pager;
 }
 
-void * get_page (Pager* pager, int page_num) {
+void *get_page(Pager *pager, int page_num) {
     if (page_num > TABLE_MAX_PAGES) {
         printf("Try to fetch page number out of bounds. %d > %d\n", page_num, TABLE_MAX_PAGES);
         exit(EXIT_FAILURE);
     }
     if (pager->pages[page_num] == NULL) {
-        void* page = malloc(PAGE_SIZE);
+        void *page = malloc(PAGE_SIZE);
         uint32_t num_pages = pager->file_length / PAGE_SIZE;
 
         if (pager->file_length % PAGE_SIZE) {
@@ -246,7 +244,7 @@ void * get_page (Pager* pager, int page_num) {
 }
 
 
-void pager_flush(Pager* pager, uint32_t page_num, uint32_t size) {
+void pager_flush(Pager *pager, uint32_t page_num, uint32_t size) {
     if (pager->pages[page_num] == NULL) {
         printf("Tried to flush null page\n");
         exit(EXIT_FAILURE);

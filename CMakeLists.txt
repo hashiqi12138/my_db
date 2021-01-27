@@ -11,4 +11,4 @@ add_executable(my_db main.c
         virtual_machine.h
         data_store.c
         data_store.h
-        )
+        cursor.c cursor.h pager.c pager.h)
