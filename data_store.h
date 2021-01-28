@@ -2,15 +2,16 @@
 // Created by liujie on 2020/3/20.
 //
 
+#include <stdint.h>
+
 #ifndef MY_DB_DATA_STORE_H
 #define MY_DB_DATA_STORE_H
 
-#include <stdint.h>
-
 #define COLUMN_USERNAME_SIZE 32  //username字段的大小
 #define COLUMN_EMAIL_SIZE 255    //email字段的大小
-#define TABLE_MAX_PAGES 100      //表最大的page数
-#define PAGE_SIZE 4096           //直接引用或运算不会发生错误
+
+#include "pager.h"
+
 
 /**
  * 枚举数据执行的结果
@@ -25,18 +26,6 @@ typedef struct ROW{
     char username[COLUMN_USERNAME_SIZE + 1];
     char email[COLUMN_EMAIL_SIZE + 1];
 }ROW;
-
-typedef struct _Pager{
-    int file_descriptor;
-    uint32_t file_length;
-    void* pages[TABLE_MAX_PAGES];
-} Pager;
-
-Pager* pager_open (const char* filename);
-
-void * get_page (Pager*, int);
-
-void pager_flush(Pager* pager, uint32_t page_num, uint32_t size);
 
 /**
  * 数据库中表征表的结构体
